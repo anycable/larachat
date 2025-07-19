@@ -1,0 +1,237 @@
+import { useEffect, useState, useMemo, useRef } from 'react';
+
+import { nanoid } from 'nanoid';
+import { ChatPageProps, Message } from '../../types/chat';
+import { TypingSet } from '../../lib/TypingSet';
+import { TypingIndicator } from '../../components/TypingIndicator';
+import { PresenceIndicator } from '../../components/PresenceIndicator';
+
+const autoScroll = (container: HTMLElement) => {
+  const isCurrentlyAtBottom =
+    Math.abs(
+      container.scrollTop - (container.scrollHeight - container.clientHeight)
+    ) < 5;
+
+  if (isCurrentlyAtBottom) {
+    setTimeout(() => container.scrollTo({ top: container.scrollHeight }));
+  }
+};
+
+interface MessageComponentProps {
+  message: Message;
+  mine: boolean;
+  showName: boolean;
+}
+
+function MessageComponent({ message, mine, showName }: MessageComponentProps) {
+  return (
+    <div
+      className={`relative flex max-w-[85%] flex-col gap-1 rounded-md border p-2 pb-1 shadow md:max-w-[66%] ${
+        mine
+          ? 'self-end border-teal-100 bg-teal-50 dark:bg-teal-500 dark:text-white dark:border-none'
+          : 'self-start bg-white dark:text-black'
+      }`}
+    >
+      {showName && (
+        <span className="select-none truncate text-xs font-semibold text-gray-400">
+          {message.username}
+        </span>
+      )}
+      <p>{message.body}</p>
+    </div>
+  );
+}
+
+interface MessageListProps {
+  messages: Message[];
+  user: string;
+}
+
+function MessageList({ messages, user }: MessageListProps) {
+  return (
+    <div className="flex h-full flex-col justify-end gap-2 py-4">
+      {messages.map((message, i) => {
+        const mine = message.username === user;
+        const showName = !mine && messages[i - 1]?.username !== message.username;
+
+        return (
+          <MessageComponent
+            key={message.id}
+            message={message}
+            mine={mine}
+            showName={showName}
+          />
+        );
+      })}
+      {!messages.length && (
+        <p className="text-center text-sm text-gray-500 mt-10">
+          No messages have been seen here recently. Don't be shy, send something!
+        </p>
+      )}
+    </div>
+  );
+}
+
+interface NewMessageFormProps {
+  createMessage: (msg: string) => void;
+  onTyping: () => void;
+}
+
+function NewMessageForm({ createMessage, onTyping }: NewMessageFormProps) {
+  const [body, setBody] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (body.trim()) {
+      createMessage(body);
+      setBody('');
+    }
+  };
+
+  return (
+    <form className="flex gap-2" onSubmit={handleSubmit}>
+      <div className="flex-grow">
+        <label htmlFor="message" className="sr-only">
+          Message
+        </label>
+        <input
+          id="message"
+          className="h-full w-full rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 dark:text-gray-100"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          onInput={onTyping}
+          autoComplete="off"
+          placeholder="Message"
+        />
+      </div>
+
+      <button
+        className="relative cursor-pointer rounded-md disabled:cursor-not-allowed text-white bg-red-500 enabled:hover:bg-red-400 disabled:bg-red-300 px-5 py-2"
+        type="submit"
+        disabled={!body.trim()}
+      >
+        Send
+      </button>
+    </form>
+  );
+}
+
+export default function Chat({ username, messages: initialMessages }: ChatPageProps) {
+  const [connected, setConnected] = useState(false);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [typings, setTypings] = useState<string[]>([]);
+
+  const channelRef = useRef<any>(null);
+  const messagesRef = useRef<Message[]>([]);
+
+  const typingSet = useMemo(
+    () => new TypingSet((names: string[]) => setTypings(names)),
+    []
+  );
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    // Listen to chat channel for new messages
+    const channel = window.Echo.private('chat');
+    channelRef.current = channel;
+
+    channel.listen('.message.sent', (event: { id: number; username: string; body: string; created_at: string }) => {
+      console.log('New message:', event);
+      const newMessage: Message = {
+        id: event.id,
+        username: event.username,
+        body: event.body,
+        created_at: event.created_at,
+      };
+
+      // Clear typing info for this user
+      typingSet.remove(newMessage.username);
+
+      // Add message if not already present
+      setMessages(prevMessages => {
+        if (!prevMessages.find(msg => msg.id === newMessage.id)) {
+          return [...prevMessages, newMessage];
+        }
+        return prevMessages;
+      });
+    });
+
+    // Listen for typing events using whisper
+    channel.listenForWhisper('typing', (event: { username: string }) => {
+      if (event.username !== username) {
+        typingSet.add(event.username);
+      }
+    });
+
+    setConnected(true);
+
+    return () => {
+      channel.stopListening('.message.sent');
+      channel.stopListeningForWhisper('typing');
+      typingSet.unwatch();
+    };
+  }, [username, typingSet]);
+
+  const createMessage = async (body: string) => {
+    autoScroll(document.documentElement);
+
+    // Send to server
+    try {
+      const response = await fetch(route('messages.store'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+        body: JSON.stringify({ body }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to send message');
+      } else {
+          const message = await response.json();
+          setMessages(prev => [...prev, message]);
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
+  };
+
+  const handleTyping = () => {
+    if (channelRef.current) {
+      (channelRef.current as any).whisper('typing', { username });
+    }
+  };
+
+  return (
+    <div className="relative flex min-h-screen w-full flex-col gap-3 px-4 sm:px-6 lg:px-8">
+      <PresenceIndicator username={username} />
+
+      <div className="flex-1 max-w-4xl mx-auto w-full">
+        <div className="mb-4 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Chat Room
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Welcome, {username}! {connected ? '🟢 Connected' : '🔴 Connecting...'}
+          </p>
+        </div>
+
+        <MessageList messages={messages} user={username} />
+      </div>
+
+      <div className="sticky bottom-0 max-w-4xl mx-auto w-full py-2 pb-4">
+        <TypingIndicator names={typings} />
+        <div className="mt-2">
+          <NewMessageForm
+            createMessage={createMessage}
+            onTyping={handleTyping}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
