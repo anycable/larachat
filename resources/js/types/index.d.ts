@@ -1,8 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 import type { Config } from 'ziggy-js';
 
-
-
 export interface BreadcrumbItem {
     title: string;
     href: string;
@@ -27,5 +25,3 @@ export interface SharedData {
     sidebarOpen: boolean;
     [key: string]: unknown;
 }
-
-

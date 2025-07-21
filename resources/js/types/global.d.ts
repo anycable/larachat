@@ -9,3 +9,5 @@ declare global {
         Pusher: typeof Pusher;
     }
 }
+
+export {};

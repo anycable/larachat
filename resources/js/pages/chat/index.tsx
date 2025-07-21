@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
+import type Echo from 'laravel-echo';
 
-import { nanoid } from 'nanoid';
 import { ChatPageProps, Message } from '../../types/chat';
 import { TypingSet } from '../../lib/TypingSet';
 import { TypingIndicator } from '../../components/TypingIndicator';
@@ -121,7 +121,7 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [typings, setTypings] = useState<string[]>([]);
 
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<ReturnType<Echo<'pusher'>['join']> | null>(null);
   const messagesRef = useRef<Message[]>([]);
 
   const typingSet = useMemo(
@@ -134,7 +134,6 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
   }, [messages]);
 
   useEffect(() => {
-    // Listen to chat channel for new messages
     const channel = window.Echo.private('chat');
     channelRef.current = channel;
 
@@ -202,7 +201,7 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
 
   const handleTyping = () => {
     if (channelRef.current) {
-      (channelRef.current as any).whisper('typing', { username });
+      channelRef.current.whisper('typing', { username });
     }
   };
 
