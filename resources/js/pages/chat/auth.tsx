@@ -16,9 +16,14 @@ export default function Auth() {
         <main className="mx-auto flex flex-col items-center w-screen">
             <div className="grid h-screen items-center">
                 <div className="-mt-12 flex max-w-xs flex-col">
-                    <div className="my-4">
-                        <h1 className="mb-4 text-center text-2xl font-semibold text-balance">
-                            Please, name yourself!
+                    <div className="my-4 flex items-baseline justify-between">
+                        <div className='flex items-center space-x-2'>
+                            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
+                                LaraChat
+                            </h1>
+                        </div>
+                        <h1 className="text-center text-xl font-semibold">
+                            Log in
                         </h1>
                     </div>
 

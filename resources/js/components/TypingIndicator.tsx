@@ -14,6 +14,6 @@ export function TypingIndicator({ names }: TypingIndicatorProps) {
   }
 
   return (
-    <div className="px-2 text-xs text-gray-400">{`${prefix} typing...`}</div>
+    <div className="text-xs text-gray-500 dark:text-gray-300">{`${prefix} typing...`}</div>
   );
 }

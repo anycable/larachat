@@ -26,18 +26,18 @@ interface MessageComponentProps {
 function MessageComponent({ message, mine, showName }: MessageComponentProps) {
   return (
     <div
-      className={`relative flex max-w-[85%] flex-col gap-1 rounded-md border p-2 pb-1 shadow md:max-w-[66%] ${
+      className={`relative flex max-w-[85%] flex-col gap-1 rounded-lg border p-2 pb-1 shadow md:max-w-[66%] ${
         mine
-          ? 'self-end border-teal-100 bg-teal-50 dark:bg-teal-500 dark:text-white dark:border-none'
-          : 'self-start bg-white dark:text-black'
+          ? 'self-end border-teal-100 bg-teal-50 dark:bg-teal-600 dark:text-white dark:border-none'
+          : 'self-start bg-white dark:text-black dark:bg-gray-200'
       }`}
     >
       {showName && (
-        <span className="select-none truncate text-xs font-semibold text-gray-400">
+        <span className="select-none truncate text-xs font-semibold text-purple-600">
           {message.username}
         </span>
       )}
-      <p>{message.body}</p>
+      <p className="font-medium">{message.body}</p>
     </div>
   );
 }
@@ -90,7 +90,7 @@ function NewMessageForm({ createMessage, onTyping }: NewMessageFormProps) {
 
   return (
     <form className="flex gap-2" onSubmit={handleSubmit}>
-      <div className="flex-grow">
+      <div className="flex-grow bg-white dark:bg-black rounded-md">
         <label htmlFor="message" className="sr-only">
           Message
         </label>
@@ -106,7 +106,7 @@ function NewMessageForm({ createMessage, onTyping }: NewMessageFormProps) {
       </div>
 
       <button
-        className="relative cursor-pointer rounded-md disabled:cursor-not-allowed text-white bg-red-500 enabled:hover:bg-red-400 disabled:bg-red-300 px-5 py-2"
+        className="relative font-medium cursor-pointer rounded-md disabled:cursor-not-allowed text-white bg-purple-800 enabled:hover:bg-purple-700 disabled:opacity-75 px-5 py-2"
         type="submit"
         disabled={!body.trim()}
       >
@@ -207,17 +207,19 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
 
   return (
     <div className="relative flex min-h-screen w-full flex-col gap-3 px-4 sm:px-6 lg:px-8">
-      <PresenceIndicator username={username} />
-
       <div className="flex-1 max-w-4xl mx-auto w-full">
-        <div className="mb-4 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Chat Room
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Welcome, {username}! {connected ? '🟢 Connected' : '🔴 Connecting...'}
-          </p>
-        </div>
+        <nav className="mb-4 flex items-center justify-between py-2 border-b border-gray-500">
+            <div className='flex items-center space-x-2'>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
+                    LaraChat
+                </h1>
+                <PresenceIndicator username={username} />
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <span className='font-bold'>{username}</span>
+                <span className={`inline-block w-4 h-4 rounded-full ${connected ? 'bg-green-700' : 'bg-red-600'}`}></span>
+            </div>
+        </nav>
 
         <MessageList messages={messages} user={username} />
       </div>
