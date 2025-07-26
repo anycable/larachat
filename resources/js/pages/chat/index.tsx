@@ -8,7 +8,7 @@ import { PresenceIndicator } from '../../components/PresenceIndicator';
 
 const autoScroll = (container: HTMLElement | null) => {
   if (!container) return;
-  
+
   const isCurrentlyAtBottom =
     Math.abs(
       container.scrollTop - (container.scrollHeight - container.clientHeight)
@@ -243,42 +243,44 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col gap-3 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto w-full">
-        <nav className="mb-4 flex items-center justify-between py-2 border-b border-gray-500">
-            <div className='flex items-center space-x-2'>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
-                    LaraChat
-                </h1>
-                <PresenceIndicator username={username} />
-            </div>
-            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                <span className='font-bold'>{username}</span>
-                <span className={`inline-block w-4 h-4 rounded-full ${connected ? 'bg-green-700' : 'bg-red-600'}`}></span>
-                <button
-                  onClick={handleLogout}
-                  className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 underline transition-colors"
-                >
-                  Log out
-                </button>
-            </div>
-        </nav>
-      </div>
+    <div className="min-h-screen w-full">
+      <nav className="sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-50 border-b border-gray-500 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto flex items-center justify-between py-2">
+          <div className='flex items-center space-x-2'>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
+                  LaraChat
+              </h1>
+              <PresenceIndicator username={username} />
+          </div>
+          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+              <span className='font-bold'>{username}</span>
+              <span className={`inline-block w-4 h-4 rounded-full ${connected ? 'bg-green-700' : 'bg-red-600'}`}></span>
+              <button
+                onClick={handleLogout}
+                className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 underline transition-colors"
+              >
+                Log out
+              </button>
+          </div>
+        </div>
+      </nav>
 
-      <div 
-        ref={messagesContainerRef}
-        className="flex-1 max-w-4xl mx-auto w-full overflow-y-auto"
-      >
-        <MessageList messages={messages} user={username} messagesRef={messagesContainerRef} />
-      </div>
+      <div className="flex flex-col px-4 sm:px-6 lg:px-8" style={{minHeight: 'calc(100vh - 72px)'}}>
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 max-w-4xl mx-auto w-full overflow-y-auto pt-4"
+        >
+          <MessageList messages={messages} user={username} messagesRef={messagesContainerRef} />
+        </div>
 
-      <div className="sticky bottom-0 max-w-4xl mx-auto w-full py-2 pb-4">
-        <TypingIndicator names={typings} />
-        <div className="mt-2">
-          <NewMessageForm
-            createMessage={createMessage}
-            onTyping={handleTyping}
-          />
+        <div className="sticky bottom-0 max-w-4xl mx-auto w-full py-2 pb-4 bg-white dark:bg-gray-900">
+          <TypingIndicator names={typings} />
+          <div className="mt-2">
+            <NewMessageForm
+              createMessage={createMessage}
+              onTyping={handleTyping}
+            />
+          </div>
         </div>
       </div>
     </div>
