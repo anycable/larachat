@@ -4,8 +4,60 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "126a225a676d66f94f4538d41b99194b",
+    "content-hash": "741bc3a7809c0b2dacb4069d60bdee81",
     "packages": [
+        {
+            "name": "anycable/laravel-broadcaster",
+            "version": "v0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/anycable/anycable-laravel",
+                "reference": "9d16f2d153d691c710dcb51ea5bb087bc9809b49"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/anycable/anycable-laravel/zipball/9d16f2d153d691c710dcb51ea5bb087bc9809b49",
+                "reference": "9d16f2d153d691c710dcb51ea5bb087bc9809b49",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "laravel/framework": "^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.13",
+                "mockery/mockery": "^1.4",
+                "orchestra/testbench": "^9.0|^10.3",
+                "phpunit/phpunit": "^11.0",
+                "squizlabs/php_codesniffer": "^3.7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AnyCable\\Laravel\\Providers\\AnyCableBroadcastServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AnyCable\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vladimir Dementyev",
+                    "email": "dementiev.vm@gmail.com"
+                }
+            ],
+            "description": "AnyCable broadcaster for Laravel",
+            "time": "2025-06-04T04:53:16+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.13.1",
