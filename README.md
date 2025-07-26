@@ -1,6 +1,6 @@
 ## Laravel Chat Demo
 
-A minimal real-time chat application built with Laravel and [Laravel Reverb](https://laravel.com/docs/reverb) for WebSocket broadcasting.
+A minimal real-time chat application built with Laravel and [Laravel Reverb](https://laravel.com/docs/reverb) / [AnyCable](https://anycable.io) for WebSocket broadcasting.
 
 > This project started as an AI-generated fork of our [Next.js demo](https://github.com/anycable/anycable-pubsub-nextjs).
 

@@ -6,14 +6,18 @@ import { TypingSet } from '../../lib/TypingSet';
 import { TypingIndicator } from '../../components/TypingIndicator';
 import { PresenceIndicator } from '../../components/PresenceIndicator';
 
-const autoScroll = (container: HTMLElement) => {
+const autoScroll = (container: HTMLElement | null) => {
+  if (!container) return;
+  
   const isCurrentlyAtBottom =
     Math.abs(
       container.scrollTop - (container.scrollHeight - container.clientHeight)
-    ) < 5;
+    ) < 50;
 
   if (isCurrentlyAtBottom) {
-    setTimeout(() => container.scrollTo({ top: container.scrollHeight }));
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+    });
   }
 };
 
@@ -45,11 +49,12 @@ function MessageComponent({ message, mine, showName }: MessageComponentProps) {
 interface MessageListProps {
   messages: Message[];
   user: string;
+  messagesRef: React.RefObject<HTMLDivElement>;
 }
 
-function MessageList({ messages, user }: MessageListProps) {
+function MessageList({ messages, user, messagesRef }: MessageListProps) {
   return (
-    <div className="flex h-full flex-col justify-end gap-2 py-4">
+    <div className="flex flex-col justify-end gap-2 py-4">
       {messages.map((message, i) => {
         const mine = message.username === user;
         const showName = !mine && messages[i - 1]?.username !== message.username;
@@ -123,6 +128,7 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
 
   const channelRef = useRef<ReturnType<Echo<'pusher'>['join']> | null>(null);
   const messagesRef = useRef<Message[]>([]);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const typingSet = useMemo(
     () => new TypingSet((names: string[]) => setTypings(names)),
@@ -132,6 +138,17 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  // Auto-scroll to bottom on initial load
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      }, 100);
+    }
+  }, []);
 
   useEffect(() => {
     const channel = window.Echo.private('chat');
@@ -156,6 +173,7 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
         }
         return prevMessages;
       });
+      setTimeout(() => autoScroll(messagesContainerRef.current), 10);
     });
 
     // Listen for typing events using whisper
@@ -175,8 +193,6 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
   }, [username, typingSet]);
 
   const createMessage = async (body: string) => {
-    autoScroll(document.documentElement);
-
     // Send to server
     try {
       const response = await fetch(route('messages.store'), {
@@ -193,6 +209,7 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
       } else {
           const message = await response.json();
           setMessages(prev => [...prev, message]);
+          setTimeout(() => autoScroll(messagesContainerRef.current), 10);
       }
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -205,9 +222,29 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(route('logout'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+      });
+
+      if (response.ok) {
+        window.location.href = route('chat');
+      } else {
+        console.error('Failed to logout');
+      }
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen w-full flex-col gap-3 px-4 sm:px-6 lg:px-8">
-      <div className="flex-1 max-w-4xl mx-auto w-full">
+      <div className="max-w-4xl mx-auto w-full">
         <nav className="mb-4 flex items-center justify-between py-2 border-b border-gray-500">
             <div className='flex items-center space-x-2'>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
@@ -215,13 +252,24 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
                 </h1>
                 <PresenceIndicator username={username} />
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                 <span className='font-bold'>{username}</span>
                 <span className={`inline-block w-4 h-4 rounded-full ${connected ? 'bg-green-700' : 'bg-red-600'}`}></span>
+                <button
+                  onClick={handleLogout}
+                  className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 underline transition-colors"
+                >
+                  Log out
+                </button>
             </div>
         </nav>
+      </div>
 
-        <MessageList messages={messages} user={username} />
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 max-w-4xl mx-auto w-full overflow-y-auto"
+      >
+        <MessageList messages={messages} user={username} messagesRef={messagesContainerRef} />
       </div>
 
       <div className="sticky bottom-0 max-w-4xl mx-auto w-full py-2 pb-4">

@@ -71,6 +71,9 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "clean-messages": [
+            "@php artisan tinker --execute=\"App\\Models\\Message::truncate(); echo 'Messages table cleaned successfully.\\n';\""
         ]
     },
     "extra": {

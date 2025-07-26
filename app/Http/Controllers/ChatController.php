@@ -15,7 +15,7 @@ class ChatController extends Controller
     public function index(Request $request): Response
     {
         $username = $request->session()->get('username');
-        
+
         if (!$username) {
             return Inertia::render('chat/auth');
         }
@@ -56,7 +56,7 @@ class ChatController extends Controller
         ]);
 
         $username = $request->session()->get('username');
-        
+
         if (!$username) {
             return response()->json(['error' => 'No username set'], 401);
         }
@@ -68,11 +68,30 @@ class ChatController extends Controller
 
         broadcast(new MessageSent($message));
 
+        // Keep only the 200 most recent messages
+        $totalMessages = Message::count();
+        if ($totalMessages > 200) {
+            $messagesToDelete = $totalMessages - 200;
+            Message::query()
+                ->orderBy('created_at', 'asc')
+                ->take($messagesToDelete)
+                ->delete();
+        }
+
         return response()->json([
             'id' => $message->id,
             'username' => $message->username,
             'body' => $message->body,
             'created_at' => $message->created_at->toJSON(),
         ]);
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        $request->session()->forget('username');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('chat');
     }
 }
