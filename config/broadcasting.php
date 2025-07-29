@@ -77,6 +77,10 @@ return [
             'driver' => 'null',
         ],
 
+        'anycable' => [
+            'driver' => 'anycable'
+        ]
+
     ],
 
 ];

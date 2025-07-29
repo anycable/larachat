@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "741bc3a7809c0b2dacb4069d60bdee81",
+    "content-hash": "de1d55833bf3ae2c289e77514e8ab09b",
     "packages": [
         {
             "name": "anycable/laravel-broadcaster",
-            "version": "v0.1.1",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/anycable/anycable-laravel",
-                "reference": "9d16f2d153d691c710dcb51ea5bb087bc9809b49"
+                "reference": "aa69c4f41656e89df4b433fa60ff4b9d34c949ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/anycable/anycable-laravel/zipball/9d16f2d153d691c710dcb51ea5bb087bc9809b49",
-                "reference": "9d16f2d153d691c710dcb51ea5bb087bc9809b49",
+                "url": "https://api.github.com/repos/anycable/anycable-laravel/zipball/aa69c4f41656e89df4b433fa60ff4b9d34c949ec",
+                "reference": "aa69c4f41656e89df4b433fa60ff4b9d34c949ec",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +56,7 @@
                 }
             ],
             "description": "AnyCable broadcaster for Laravel",
-            "time": "2025-06-04T04:53:16+00:00"
+            "time": "2025-07-29T03:55:44+00:00"
         },
         {
             "name": "brick/math",
@@ -10217,7 +10217,7 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
