@@ -6,6 +6,8 @@ A minimal real-time chat application built with Laravel that can use either [Lar
 
 Features real-time messaging with session-based usernames and message persistence.
 
+This project is configured for easy deployment to [Fly.io](https://fly.io).
+
 ### Running locally
 
 First, install PHP dependencies:
@@ -58,5 +60,6 @@ Now, launch the app using the same `composer run dev:anycable` command and you'l
 - Message persistence with SQLite
 - React frontend with Inertia.js
 - Tailwind CSS for styling
+- Fly.io deployment configuration
 
 [anycable-laravel]: https://github.com/anycable/anycable-laravel
