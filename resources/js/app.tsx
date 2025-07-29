@@ -32,7 +32,7 @@ if (import.meta.env.VITE_BROADCAST_CONNECTION === 'anycable') {
         broadcaster: 'reverb',
         key: import.meta.env.VITE_REVERB_APP_KEY || 'reverb_key',
         wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
-        wsPort: port || 8080,
+        wsPort: port || import.meta.env.VITE_REVERB_PORT || 8080,
         wssPort: import.meta.env.VITE_REVERB_PORT || 8080,
         forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'http') === 'https',
         enabledTransports: ['ws', 'wss'],
