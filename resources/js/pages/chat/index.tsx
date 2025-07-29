@@ -35,8 +35,8 @@ function MessageComponent({ message, mine, showName }: MessageComponentProps) {
                     : 'self-start bg-white dark:bg-gray-200 dark:text-black'
             }`}
         >
-            {showName && <span className="truncate text-xs font-semibold text-purple-600 select-none">{message.username}</span>}
-            <p className="font-medium">{message.body}</p>
+            {showName && <span className="truncate text-sm font-semibold text-purple-600 select-none">{message.username}</span>}
+            <p className="text-lg font-medium">{message.body}</p>
         </div>
     );
 }
@@ -56,7 +56,7 @@ function MessageList({ messages, user }: MessageListProps) {
                 return <MessageComponent key={message.id} message={message} mine={mine} showName={showName} />;
             })}
             {!messages.length && (
-                <p className="mt-10 text-center text-sm text-gray-500">No messages have been seen here recently. Don't be shy, send something!</p>
+                <p className="mt-10 text-center text-base text-gray-500">No messages have been seen here recently. Don't be shy, send something!</p>
             )}
         </div>
     );
@@ -86,7 +86,7 @@ function NewMessageForm({ createMessage, onTyping }: NewMessageFormProps) {
                 </label>
                 <input
                     id="message"
-                    className="h-full w-full rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset placeholder:text-gray-400 sm:text-sm sm:leading-6 dark:text-gray-100"
+                    className="h-full w-full rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset placeholder:text-gray-400 text-base sm:leading-6 dark:text-gray-100"
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     onInput={onTyping}

@@ -102,7 +102,7 @@ export function Toast({ notification, onRemove }: ToastProps) {
                 <div className="flex">
                     <div className="flex-shrink-0">{icon}</div>
                     <div className="ml-3 w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-900">{notification.message}</p>
+                        <p className="text-base font-medium text-gray-900">{notification.message}</p>
                     </div>
                     <div className="ml-4 flex flex-shrink-0">
                         <button

@@ -94,12 +94,12 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         if (aggregated.joined.length > 0) {
             const message =
                 aggregated.joined.length === 1 ? `${aggregated.joined[0]} joined the room` : `${aggregated.joined.length} users joined the room`;
-            addNotification(message, 'info', 4000);
+            addNotification(message, 'info', 2000);
         }
 
         if (aggregated.left.length > 0) {
             const message = aggregated.left.length === 1 ? `${aggregated.left[0]} left the room` : `${aggregated.left.length} users left the room`;
-            addNotification(message, 'info', 4000);
+            addNotification(message, 'info', 2000);
         }
     }, [addNotification]);
 

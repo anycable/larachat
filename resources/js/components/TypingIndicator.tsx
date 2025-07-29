@@ -13,5 +13,5 @@ export function TypingIndicator({ names }: TypingIndicatorProps) {
         prefix = `${names[0]} is`;
     }
 
-    return <div className="text-xs text-gray-500 dark:text-gray-300">{`${prefix} typing...`}</div>;
+    return <div className="text-sm text-gray-500 dark:text-gray-300">{`${prefix} typing...`}</div>;
 }
