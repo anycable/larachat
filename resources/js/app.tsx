@@ -1,12 +1,12 @@
 import '../css/app.css';
 
+import { EchoCable } from '@anycable/echo';
 import { createInertiaApp } from '@inertiajs/react';
+import Echo from 'laravel-echo';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import Pusher from 'pusher-js';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
-import { EchoCable } from '@anycable/echo';
 
 // Allow connecting to a WebSocket server through toxiproxy to emulate
 // unstable network
@@ -47,7 +47,7 @@ if (import.meta.env.VITE_BROADCAST_CONNECTION === 'anycable') {
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => title ? `${title} - ${appName}` : appName,
+    title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);

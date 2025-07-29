@@ -1,19 +1,17 @@
 interface TypingIndicatorProps {
-  names: string[];
+    names: string[];
 }
 
 export function TypingIndicator({ names }: TypingIndicatorProps) {
-  if (names.length === 0) return null;
+    if (names.length === 0) return null;
 
-  let prefix: string;
+    let prefix: string;
 
-  if (names.length > 1) {
-    prefix = `${names.length} folks are`;
-  } else {
-    prefix = `${names[0]} is`;
-  }
+    if (names.length > 1) {
+        prefix = `${names.length} folks are`;
+    } else {
+        prefix = `${names[0]} is`;
+    }
 
-  return (
-    <div className="text-xs text-gray-500 dark:text-gray-300">{`${prefix} typing...`}</div>
-  );
+    return <div className="text-xs text-gray-500 dark:text-gray-300">{`${prefix} typing...`}</div>;
 }

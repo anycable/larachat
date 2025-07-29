@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNotifications } from '../contexts/NotificationContext';
 import { PresenceUser } from '../types/chat';
 
 interface PresenceIndicatorProps {
@@ -7,9 +8,11 @@ interface PresenceIndicatorProps {
 
 export function PresenceIndicator({ username }: PresenceIndicatorProps) {
     const [names, setNames] = useState<string[]>([]);
+    const { addPresenceEvent } = useNotifications();
 
     useEffect(() => {
         const presenceChannel = window.Echo.join('chat-presence');
+
         presenceChannel
             .here((users: PresenceUser[]) => {
                 const userNames = users.map((user) => user.name).filter((name) => name !== username);
@@ -18,16 +21,28 @@ export function PresenceIndicator({ username }: PresenceIndicatorProps) {
             .joining((user: PresenceUser) => {
                 if (user.name !== username) {
                     setNames((prev) => [...prev, user.name]);
+                    addPresenceEvent({
+                        type: 'joined',
+                        username: user.name,
+                        timestamp: Date.now(),
+                    });
                 }
             })
             .leaving((user: PresenceUser) => {
-                setNames((prev) => prev.filter((name) => name !== user.name));
+                if (user.name !== username) {
+                    setNames((prev) => prev.filter((name) => name !== user.name));
+                    addPresenceEvent({
+                        type: 'left',
+                        username: user.name,
+                        timestamp: Date.now(),
+                    });
+                }
             });
 
         return () => {
             window.Echo.leave('chat-presence');
         };
-    }, [username]);
+    }, [username, addPresenceEvent]);
 
     return (
         <div className="group relative">
