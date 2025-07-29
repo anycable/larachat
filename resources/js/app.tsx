@@ -8,12 +8,17 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { EchoCable } from '@anycable/echo';
 
+// Allow connecting to a WebSocket server through toxiproxy to emulate
+// unstable network
+const urlParams = new URLSearchParams(window.location.search);
+const port = urlParams.get('port') | 0;
+
 // Configure Echo
 if (import.meta.env.VITE_BROADCAST_CONNECTION === 'anycable') {
     window.Echo = new Echo({
         broadcaster: EchoCable,
         cableOptions: {
-            url: import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8080/cable',
+            url: import.meta.env.VITE_WEBSOCKET_URL || `ws://localhost:${port | 8080}/cable`,
         },
         auth: {
             headers: {
@@ -27,7 +32,7 @@ if (import.meta.env.VITE_BROADCAST_CONNECTION === 'anycable') {
         broadcaster: 'reverb',
         key: import.meta.env.VITE_REVERB_APP_KEY || 'reverb_key',
         wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
-        wsPort: import.meta.env.VITE_REVERB_PORT || 8080,
+        wsPort: port || 8080,
         wssPort: import.meta.env.VITE_REVERB_PORT || 8080,
         forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'http') === 'https',
         enabledTransports: ['ws', 'wss'],

@@ -183,7 +183,22 @@ export default function Chat({ username, messages: initialMessages }: ChatPagePr
       }
     });
 
-    setConnected(true);
+    channel.subscribed(() => setConnected(true));
+
+    // There is no common disconnect-handling API in Echo?
+    if (window.Echo.connector.pusher) {
+        window.Echo.connector.pusher.connection.bind('state_change', function (states) {
+            if (states.previous === 'connected') {
+                console.log('WebSocket disconnected');
+                setConnected(false)
+            }
+        });
+    } else if (window.Echo.connector.cable) {
+        window.Echo.connector.cable.on('disconnect', () => {
+            console.log('WebSocket disconnected');
+            setConnected(false)
+        })
+    }
 
     return () => {
       channel.stopListening('.message.sent');
