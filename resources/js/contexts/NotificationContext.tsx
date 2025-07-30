@@ -3,7 +3,7 @@ import { AggregatedPresenceEvent, NotificationLevel, PresenceEvent, ToastNotific
 
 interface NotificationContextType {
     notifications: ToastNotification[];
-    addNotification: (message: string, level: NotificationLevel, duration?: number) => void;
+    addNotification: (message: string, level: NotificationLevel, type: 'connection' | 'presence', duration?: number) => void;
     removeNotification: (id: string) => void;
     addConnectionNotification: (isOnline: boolean) => void;
     addPresenceEvent: (event: PresenceEvent) => void;
@@ -20,11 +20,11 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     const presenceEventsRef = useRef<PresenceEvent[]>([]);
     const presenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const addNotification = useCallback((message: string, level: NotificationLevel, duration: number = 5000) => {
+    const addNotification = useCallback((message: string, level: NotificationLevel, type: 'connection' | 'presence', duration: number = 5000) => {
         const id = `notification-${Date.now()}-${Math.random()}`;
         const notification: ToastNotification = {
             id,
-            type: level === 'error' || level === 'warning' ? 'connection' : 'presence',
+            type,
             message,
             level,
             timestamp: Date.now(),
@@ -48,11 +48,39 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
 
     const addConnectionNotification = useCallback(
         (isOnline: boolean) => {
-            const message = isOnline ? "You're back online" : "Connection lost, you're offline";
-            const level: NotificationLevel = isOnline ? 'success' : 'error';
-            const duration = isOnline ? 3000 : 0; // Keep offline notification until reconnected
+            if (isOnline) {
+                const message = "You're online!";
+                const level: NotificationLevel = 'success';
+                const duration = 3000;
+                const id = `notification-${Date.now()}-${Math.random()}`;
+                const notification: ToastNotification = {
+                    id,
+                    type: 'connection',
+                    message,
+                    level,
+                    timestamp: Date.now(),
+                    duration,
+                    autoClose: true,
+                };
 
-            addNotification(message, level, duration);
+                // Remove offline notifications and add online notification in one update
+                setNotifications((prev) => {
+                    const filtered = prev.filter((n) => !(n.type === 'connection' && n.level === 'error'));
+                    return [...filtered, notification];
+                });
+
+                // Auto-remove notification after duration
+                if (duration > 0) {
+                    setTimeout(() => {
+                        setNotifications((prev) => prev.filter((n) => n.id !== id));
+                    }, duration);
+                }
+            } else {
+                const message = "Connection lost, you're offline";
+                const level: NotificationLevel = 'error';
+                const duration = 0; // Keep offline notification until reconnected
+                addNotification(message, level, 'connection', duration);
+            }
         },
         [addNotification],
     );
@@ -94,12 +122,12 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         if (aggregated.joined.length > 0) {
             const message =
                 aggregated.joined.length === 1 ? `${aggregated.joined[0]} joined the room` : `${aggregated.joined.length} users joined the room`;
-            addNotification(message, 'info', 2000);
+            addNotification(message, 'info', 'presence', 2000);
         }
 
         if (aggregated.left.length > 0) {
             const message = aggregated.left.length === 1 ? `${aggregated.left[0]} left the room` : `${aggregated.left.length} users left the room`;
-            addNotification(message, 'info', 2000);
+            addNotification(message, 'info', 'presence', 2000);
         }
     }, [addNotification]);
 

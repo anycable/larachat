@@ -109,7 +109,6 @@ function NewMessageForm({ createMessage, onTyping }: NewMessageFormProps) {
 function ChatContent({ username, messages: initialMessages }: ChatPageProps) {
     const { notifications, removeNotification, addConnectionNotification, addPresenceEvent } = useNotifications();
     const [connected, setConnected] = useState(false);
-    const [hasBeenConnected, setHasBeenConnected] = useState(false);
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [typings, setTypings] = useState<string[]>([]);
 
@@ -164,11 +163,7 @@ function ChatContent({ username, messages: initialMessages }: ChatPageProps) {
 
         channel.subscribed(() => {
             setConnected(true);
-            if (hasBeenConnected) {
-                addConnectionNotification(true);
-            } else {
-                setHasBeenConnected(true);
-            }
+            addConnectionNotification(true);
         });
 
         // There is no common disconnect-handling API in Echo?

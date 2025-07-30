@@ -46,7 +46,7 @@ export function PresenceIndicator({ username }: PresenceIndicatorProps) {
 
     return (
         <div className="group relative">
-            <div className={`flex cursor-pointer items-center space-x-1 shadow-sm ${names.length > 0 ? 'text-green-700' : 'text-gray-500'}`}>
+            <div className={`flex cursor-pointer items-center space-x-1 dark:shadow-sm ${names.length > 0 ? 'text-green-700' : 'text-gray-500'}`}>
                 <span className="text-sm font-bold">{names.length}</span>
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
