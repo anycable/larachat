@@ -32,7 +32,14 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
             autoClose: true,
         };
 
-        setNotifications((prev) => [...prev, notification]);
+        setNotifications((prev) => {
+            // there should be only one connection notification
+            if (notification.type === 'connection') {
+                return [...prev.filter((n) => n.type !== 'connection'), notification];
+            }
+
+            return [...prev, notification]
+        });
 
         // Auto-remove notification after duration
         if (duration > 0) {
