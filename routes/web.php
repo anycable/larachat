@@ -7,3 +7,8 @@ Route::get('/', [ChatController::class, 'index'])->name('chat');
 Route::post('/set-username', [ChatController::class, 'setUsername'])->name('chat.set-username');
 Route::post('/logout', [ChatController::class, 'logout'])->name('logout');
 Route::post('/messages', [ChatController::class, 'store'])->name('messages.store');
+
+// Health check endpoint for Fly.io
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});

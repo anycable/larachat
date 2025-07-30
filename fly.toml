@@ -1,0 +1,65 @@
+app = "larachat-web"
+primary_region = 'ams'
+console_command = 'php /var/www/artisan tinker'
+
+[build]
+dockerfile = 'Dockerfile'
+
+[build.args]
+NODE_VERSION = '20'
+PHP_VERSION = '8.2'
+REVERB_APP_KEY = "reverb_api"
+REVERB_HOST = "localhost"
+REVERB_PORT = "8080"
+REVERB_SCHEME = "http"
+
+[env]
+#APP_KEY: fly secrets set APP_KEY="..."
+APP_ENV = 'production'
+BROADCAST_CONNECTION = 'reverb'
+#TODO: change to the folder /data and correct open_basedir
+DB_DATABASE = "/var/www/html/database/database.sqlite"
+CACHE_DRIVER = 'file'
+DB_CONNECTION = 'sqlite'
+LOG_CHANNEL = 'stderr'
+LOG_LEVEL = 'info'
+LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
+QUEUE_CONNECTION = "database"
+
+REVERB_APP_ID = "reverb_app_id"
+REVERB_APP_KEY = "reverb_app_key"
+#REVERB_APP_SECRET: fly secrets set REVERB_APP_SECRET="..."
+REVERB_HOST = "localhost"
+REVERB_PORT = "8080"
+REVERB_SCHEME = "http"
+
+[http_service]
+internal_port = 8080
+processes = ["app"]
+force_https = true
+
+[http_service.concurrency]
+type = "connections"
+hard_limit = 550
+soft_limit = 500
+
+[[http_service.checks]]
+interval = "10s"
+timeout = "2s"
+grace_period = "5s"
+method = "GET"
+path = "/health"
+protocol = "http"
+
+[[mounts]]
+source = "app_data"
+destination = "/data"
+
+[processes]
+app = ""
+worker = "php /var/www/html/artisan queue:work --sleep=1 --tries=3 --no-interaction"
+
+[[vm]]
+cpu_kind = "shared"
+cpus = 1
+memory = "1gb"
