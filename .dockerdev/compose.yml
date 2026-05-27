@@ -3,9 +3,9 @@ x-app: &app
     context: .
     dockerfile: Dockerfile
     args:
-      PHP_VERSION: '8.2'
+      PHP_VERSION: '8.4'
       DISTRO_NAME: 'bookworm'
-  image: larachat-dev:1.0
+  image: larachat-dev:1.1
 
 x-backend: &backend
   <<: *app
