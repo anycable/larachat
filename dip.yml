@@ -1,0 +1,66 @@
+version: '7.1'
+
+compose:
+  files:
+    - .dockerdev/compose.yml
+  project_name: larachat
+
+interaction:
+  runner:
+    description: Open a Bash shell within the app container (with Redis up)
+    service: app
+    command: /bin/bash
+
+  bash:
+    description: Open a shell without bringing dependencies up
+    service: app
+    command: /bin/bash
+    compose_run_options: [no-deps]
+
+  composer:
+    description: Run Composer commands
+    service: app
+    command: composer
+
+  artisan:
+    description: Run php artisan commands
+    service: app
+    command: php artisan
+
+  npm:
+    description: Run npm commands
+    service: app
+    command: npm
+
+  serve:
+    description: Launch full web app in AnyCable mode (http://localhost:8000, ws://localhost:8080)
+    service: web
+    compose:
+      run_options: [service-ports, use-aliases]
+
+  'serve:reverb':
+    description: Launch full web app in Reverb mode (http://localhost:8000, ws://localhost:8080)
+    service: web-reverb
+    compose:
+      run_options: [service-ports, use-aliases]
+
+  'redis-cli':
+    description: Run Redis console
+    service: redis
+    command: redis-cli -h redis
+
+  claude:
+    description: Run Claude CLI in the container (skipping permission prompts)
+    service: app
+    command: claude --dangerously-skip-permissions
+
+provision:
+  - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
+  - dip compose build
+  - test -f .dockerdev/.claude.json || cp .dockerdev/.claude.json.example .dockerdev/.claude.json
+  - 'test -f .env || (cp .dockerdev/.env.docker .env && dip artisan key:generate)'
+  - dip compose up -d redis
+  - dip composer install
+  - dip npm install
+  - dip artisan anycable:server --download-only
+  - dip artisan migrate --graceful

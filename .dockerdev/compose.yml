@@ -1,0 +1,91 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      PHP_VERSION: '8.2'
+      DISTRO_NAME: 'bookworm'
+  image: larachat-dev:1.0
+
+x-backend: &backend
+  <<: *app
+  stdin_open: true
+  tty: true
+  working_dir: /app
+  volumes:
+    - ..:/app:cached
+    - vendor:/app/vendor
+    - node_modules:/app/node_modules
+    - composer_cache:/root/.composer
+    - dist:/app/storage/dist
+    - history:/usr/local/hist
+    - claude:/root/.claude
+    - ./.claude.json:/root/.claude.json
+  environment: &env
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    REDIS_CLIENT: phpredis
+    REDIS_PASSWORD: null
+    REVERB_APP_ID: 123456
+    REVERB_APP_KEY: reverb_key
+    REVERB_APP_SECRET: reverb_secret
+    REVERB_HOST: localhost
+    REVERB_PORT: 8080
+    REVERB_SCHEME: http
+    ANYCABLE_SECRET: any_secret
+    ANYCABLE_PUBLIC: "true"
+    HISTFILE: /usr/local/hist/.bash_history
+    EDITOR: vi
+  depends_on:
+    redis:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *backend
+    command: /bin/bash
+
+  web:
+    <<: *backend
+    command: >-
+      composer run dev:anycable
+    ports:
+      - '8000:8000'
+      - '5173:5173'
+      - '8080:8080'
+    environment:
+      <<: *env
+      BROADCAST_CONNECTION: anycable
+
+  web-reverb:
+    <<: *backend
+    command: >-
+      composer run dev
+    ports:
+      - '8000:8000'
+      - '5173:5173'
+      - '8080:8080'
+    environment:
+      <<: *env
+      BROADCAST_CONNECTION: reverb
+
+  redis:
+    image: redis:7.4-alpine
+    volumes:
+      - redis:/data
+    ports:
+      - '6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  vendor:
+  node_modules:
+  composer_cache:
+  dist:
+  history:
+  redis:
+  claude:

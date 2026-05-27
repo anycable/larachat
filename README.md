@@ -43,13 +43,13 @@ composer run dev:anycable
 
 The only difference is the server command: `php artisan anycable:server` instead of `php artisan reverb:start`. The `anycable:server` command is provided by the [anycable-laravel][] package. But there is more.
 
-You can also go AnyCable _full mode_ (and not just Pusher compatibility) and switch the broadcaster to "anycable". In your `.env` file:
+You can also go AnyCable _full mode_ (and not just Pusher compatibility) and switch the broadcaster to "anycable". For that, run the command as follows:
 
 ```
-BROADCAST_CONNECTION=anycable
+BROADCAST_CONNECTION=anycable composer run dev:anycable
 ```
 
-Now, launch the app using the same `composer run dev:anycable` command and you'll see it _speaking_ AnyCable (if you open your browser DevTools). This gives you all the AnyCable features such as [reliable streams](https://docs.anycable.io/anycable-go/reliable_streams) and more.
+Now, you can see the application _speaking_ AnyCable (if you open your browser DevTools). This gives you all the AnyCable features such as [reliable streams](https://docs.anycable.io/anycable-go/reliable_streams) and more.
 
 ### What's included
 
